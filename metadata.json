@@ -1,0 +1,8 @@
+{
+  "name": "Markenza",
+  "description": "Premium 3D Shopify website development studio crafting bespoke D2C storefronts and digital commerce identities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

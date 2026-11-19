@@ -1,0 +1,251 @@
+{
+  "entities": {
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized Markenza studio administrator account.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 160
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["email", "role", "createdAt"]
+    },
+    "PortfolioProject": {
+      "title": "PortfolioProject",
+      "description": "Completed Shopify storefront project displayed in portfolio marquees and mobile mockups.",
+      "type": "object",
+      "properties": {
+        "brandName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "industry": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600
+        },
+        "liveUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "desktopScreenshot": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "mobileScreenshot": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "collectionScreenshot": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "videoPreviewUrl": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "published": {
+          "type": "boolean"
+        },
+        "featuredInHero": {
+          "type": "boolean"
+        },
+        "sortOrder": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "brandName",
+        "industry",
+        "description",
+        "liveUrl",
+        "desktopScreenshot",
+        "mobileScreenshot",
+        "videoPreviewUrl",
+        "published",
+        "featuredInHero",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "LeadEnquiry": {
+      "title": "LeadEnquiry",
+      "description": "Inbound Shopify store development enquiry submitted from the Markenza landing page.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "brandName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 160
+        },
+        "whatsapp": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 40
+        },
+        "hasExistingStore": {
+          "type": "string",
+          "enum": ["Yes", "No"]
+        },
+        "serviceNeeded": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "details": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["New", "Contacted", "In Proposal", "Closed"]
+        },
+        "internalNotes": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "name",
+        "brandName",
+        "email",
+        "whatsapp",
+        "hasExistingStore",
+        "serviceNeeded",
+        "details",
+        "status",
+        "internalNotes",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "LandingSettings": {
+      "title": "LandingSettings",
+      "description": "Live CMS content configuration for the public Markenza landing page.",
+      "type": "object",
+      "properties": {
+        "brandName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "logoUrl": { "type": "string", "minLength": 0, "maxLength": 1000 },
+        "heroHeadline": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "heroDescription": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "heroPrimaryCta": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "heroSecondaryCta": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "portfolioHeadline": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "portfolioCtaText": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "desktopPortfolioCount": { "type": "number" },
+        "mobilePortfolioCount": { "type": "number" },
+        "servicesHeadline": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "services": { "type": "array" },
+        "whyHeadline": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "whyDescription": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "whyCtaText": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "whyPoints": { "type": "array" },
+        "ratingScore": { "type": "string", "minLength": 1, "maxLength": 20 },
+        "ratingLabel": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "testimonials": { "type": "array" },
+        "performanceConfig": { "type": "object" },
+        "completeShowcaseConfig": { "type": "object" },
+        "sectionOrder": { "type": "array" },
+        "enquiryHeadline": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "enquiryDescription": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "enquiryCtaText": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "footerDescription": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "contactEmail": { "type": "string", "minLength": 3, "maxLength": 160 },
+        "whatsappNumber": { "type": "string", "minLength": 5, "maxLength": 40 },
+        "instagramUrl": { "type": "string", "minLength": 0, "maxLength": 300 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "brandName",
+        "logoUrl",
+        "heroHeadline",
+        "heroDescription",
+        "heroPrimaryCta",
+        "heroSecondaryCta",
+        "portfolioHeadline",
+        "servicesHeadline",
+        "services",
+        "whyHeadline",
+        "enquiryHeadline",
+        "enquiryDescription",
+        "enquiryCtaText",
+        "footerDescription",
+        "contactEmail",
+        "whatsappNumber",
+        "instagramUrl",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/admins/{uid}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Authorized admin role registry keyed by Firebase Auth UID."
+    },
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/PortfolioProject" },
+      "description": "Portfolio projects showcased on the landing page when published."
+    },
+    "/enquiries/{enquiryId}": {
+      "schema": { "$ref": "#/entities/LeadEnquiry" },
+      "description": "Customer project enquiries; write-only for public visitors, read/manage for admins."
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/LandingSettings" },
+      "description": "Public landing page CMS configuration document (landing)."
+    }
+  }
+}

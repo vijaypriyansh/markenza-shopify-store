@@ -1,0 +1,226 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Hardened Global Primitives ---
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isBootstrappedAdmin() {
+      return isVerifiedUser() && request.auth.token.email == 'vijaypriyanshpersonal@gmail.com';
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        isBootstrappedAdmin() ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // --- Validation Blueprints ---
+    function isValidAdmin(data) {
+      return data.keys().hasAll(['email', 'role', 'createdAt'])
+        && data.keys().hasOnly(['email', 'role', 'createdAt'])
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && data.role == 'admin'
+        && data.createdAt is timestamp;
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll([
+          'brandName', 'industry', 'description', 'liveUrl',
+          'desktopScreenshot', 'mobileScreenshot', 'videoPreviewUrl',
+          'published', 'featuredInHero', 'sortOrder', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'brandName', 'industry', 'description', 'liveUrl',
+          'desktopScreenshot', 'mobileScreenshot', 'collectionScreenshot', 'videoPreviewUrl',
+          'published', 'featuredInHero', 'sortOrder', 'createdAt', 'updatedAt'
+        ])
+        && data.brandName is string && data.brandName.size() >= 1 && data.brandName.size() <= 100
+        && data.industry is string && data.industry.size() >= 1 && data.industry.size() <= 80
+        && data.description is string && data.description.size() >= 1 && data.description.size() <= 600
+        && data.liveUrl is string && data.liveUrl.size() >= 1 && data.liveUrl.size() <= 500
+        && data.desktopScreenshot is string && data.desktopScreenshot.size() >= 1 && data.desktopScreenshot.size() <= 1000
+        && data.mobileScreenshot is string && data.mobileScreenshot.size() <= 1000
+        && (!data.keys().hasAny(['collectionScreenshot']) || (data.collectionScreenshot is string && data.collectionScreenshot.size() <= 1000))
+        && data.videoPreviewUrl is string && data.videoPreviewUrl.size() <= 1000
+        && data.published is bool
+        && data.featuredInHero is bool
+        && (data.sortOrder is int || data.sortOrder is float)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidEnquiry(data) {
+      return data.keys().hasAll([
+          'name', 'brandName', 'email', 'whatsapp',
+          'hasExistingStore', 'serviceNeeded', 'details',
+          'status', 'internalNotes', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'name', 'brandName', 'email', 'whatsapp',
+          'hasExistingStore', 'serviceNeeded', 'details',
+          'status', 'internalNotes', 'createdAt', 'updatedAt'
+        ])
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 100
+        && data.brandName is string && data.brandName.size() >= 1 && data.brandName.size() <= 120
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && data.whatsapp is string && data.whatsapp.size() >= 5 && data.whatsapp.size() <= 40
+        && data.hasExistingStore in ['Yes', 'No']
+        && data.serviceNeeded is string && data.serviceNeeded.size() >= 1 && data.serviceNeeded.size() <= 120
+        && data.details is string && data.details.size() <= 2000
+        && data.status in ['New', 'Contacted', 'In Proposal', 'Closed']
+        && data.internalNotes is string && data.internalNotes.size() <= 2000
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidLandingSettings(data) {
+      return data.keys().hasAll([
+          'brandName', 'logoUrl', 'heroHeadline', 'heroDescription',
+          'heroPrimaryCta', 'heroSecondaryCta', 'portfolioHeadline',
+          'servicesHeadline', 'services', 'whyHeadline',
+          'enquiryHeadline', 'enquiryDescription', 'enquiryCtaText',
+          'footerDescription', 'contactEmail', 'whatsappNumber',
+          'instagramUrl', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'brandName', 'logoUrl', 'heroHeadline', 'heroDescription',
+          'heroPrimaryCta', 'heroSecondaryCta', 'portfolioHeadline',
+          'portfolioCtaText', 'desktopPortfolioCount', 'mobilePortfolioCount',
+          'servicesHeadline', 'services', 'whyHeadline',
+          'whyDescription', 'whyCtaText', 'whyPoints',
+          'ratingScore', 'ratingLabel', 'testimonials',
+          'performanceConfig', 'completeShowcaseConfig', 'sectionOrder',
+          'enquiryHeadline', 'enquiryDescription', 'enquiryCtaText',
+          'footerDescription', 'contactEmail', 'whatsappNumber',
+          'instagramUrl', 'updatedAt'
+        ])
+        && data.brandName is string && data.brandName.size() >= 1 && data.brandName.size() <= 60
+        && data.logoUrl is string && data.logoUrl.size() <= 1000
+        && data.heroHeadline is string && data.heroHeadline.size() >= 1 && data.heroHeadline.size() <= 200
+        && data.heroDescription is string && data.heroDescription.size() >= 1 && data.heroDescription.size() <= 500
+        && data.heroPrimaryCta is string && data.heroPrimaryCta.size() >= 1 && data.heroPrimaryCta.size() <= 60
+        && data.heroSecondaryCta is string && data.heroSecondaryCta.size() >= 1 && data.heroSecondaryCta.size() <= 60
+        && data.portfolioHeadline is string && data.portfolioHeadline.size() >= 1 && data.portfolioHeadline.size() <= 160
+        && (!data.keys().hasAny(['portfolioCtaText']) || (data.portfolioCtaText is string && data.portfolioCtaText.size() >= 1 && data.portfolioCtaText.size() <= 120))
+        && (!data.keys().hasAny(['desktopPortfolioCount']) || (data.desktopPortfolioCount is int && data.desktopPortfolioCount >= 1 && data.desktopPortfolioCount <= 20))
+        && (!data.keys().hasAny(['mobilePortfolioCount']) || (data.mobilePortfolioCount is int && data.mobilePortfolioCount >= 1 && data.mobilePortfolioCount <= 20))
+        && data.servicesHeadline is string && data.servicesHeadline.size() >= 1 && data.servicesHeadline.size() <= 160
+        && data.services is list && data.services.size() >= 1 && data.services.size() <= 6 && data.services[0] is map
+        && data.whyHeadline is string && data.whyHeadline.size() >= 1 && data.whyHeadline.size() <= 160
+        && (!data.keys().hasAny(['whyDescription']) || (data.whyDescription is string && data.whyDescription.size() <= 500))
+        && (!data.keys().hasAny(['whyCtaText']) || (data.whyCtaText is string && data.whyCtaText.size() <= 80))
+        && (!data.keys().hasAny(['whyPoints']) || (data.whyPoints is list && data.whyPoints.size() <= 12))
+        && (!data.keys().hasAny(['ratingScore']) || (data.ratingScore is string && data.ratingScore.size() <= 20))
+        && (!data.keys().hasAny(['ratingLabel']) || (data.ratingLabel is string && data.ratingLabel.size() <= 120))
+        && (!data.keys().hasAny(['testimonials']) || (data.testimonials is list && data.testimonials.size() <= 12))
+        && (!data.keys().hasAny(['performanceConfig']) || data.performanceConfig is map)
+        && (!data.keys().hasAny(['completeShowcaseConfig']) || data.completeShowcaseConfig is map)
+        && (!data.keys().hasAny(['sectionOrder']) || (data.sectionOrder is list && data.sectionOrder.size() <= 15))
+        && data.enquiryHeadline is string && data.enquiryHeadline.size() >= 1 && data.enquiryHeadline.size() <= 160
+        && data.enquiryDescription is string && data.enquiryDescription.size() >= 1 && data.enquiryDescription.size() <= 500
+        && data.enquiryCtaText is string && data.enquiryCtaText.size() >= 1 && data.enquiryCtaText.size() <= 60
+        && data.footerDescription is string && data.footerDescription.size() >= 1 && data.footerDescription.size() <= 300
+        && data.contactEmail is string && data.contactEmail.size() >= 3 && data.contactEmail.size() <= 160
+        && data.whatsappNumber is string && data.whatsappNumber.size() >= 5 && data.whatsappNumber.size() <= 40
+        && data.instagramUrl is string && data.instagramUrl.size() <= 300
+        && data.updatedAt is timestamp;
+    }
+
+    // --- Collection Rules ---
+    match /admins/{uid} {
+      allow get: if isSignedIn() && isValidId(uid) && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && isValidId(uid) && isValidAdmin(incoming())
+        && incoming().createdAt == request.time
+        && isBootstrappedAdmin();
+      allow update: if false;
+      allow delete: if isSignedIn() && isValidId(uid) && uid != request.auth.uid && isBootstrappedAdmin();
+    }
+
+    match /projects/{projectId} {
+      allow get: if isValidId(projectId) && ((resource != null && existing().published == true) || isAdmin());
+      allow list: if existing().published == true || isAdmin();
+      allow create: if isSignedIn() && isValidId(projectId) && isValidProject(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && isAdmin();
+      allow update: if isSignedIn() && isValidId(projectId) && isValidProject(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'brandName', 'industry', 'description', 'liveUrl',
+          'desktopScreenshot', 'mobileScreenshot', 'collectionScreenshot', 'videoPreviewUrl',
+          'published', 'featuredInHero', 'sortOrder', 'updatedAt'
+        ])
+        && isAdmin();
+      allow delete: if isSignedIn() && isValidId(projectId) && isAdmin();
+    }
+
+    match /enquiries/{enquiryId} {
+      allow get: if isSignedIn() && isValidId(enquiryId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isValidId(enquiryId) && isValidEnquiry(incoming())
+        && incoming().status == 'New'
+        && incoming().internalNotes == ''
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(enquiryId) && isValidEnquiry(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'status', 'internalNotes', 'updatedAt'
+        ])
+        && isAdmin();
+      allow delete: if isSignedIn() && isValidId(enquiryId) && isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow get: if settingId == 'landing' || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && settingId == 'landing' && isValidLandingSettings(incoming())
+        && incoming().updatedAt == request.time
+        && isAdmin();
+      allow update: if isSignedIn() && settingId == 'landing' && isValidLandingSettings(incoming())
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'brandName', 'logoUrl', 'heroHeadline', 'heroDescription',
+          'heroPrimaryCta', 'heroSecondaryCta', 'portfolioHeadline',
+          'portfolioCtaText', 'desktopPortfolioCount', 'mobilePortfolioCount',
+          'servicesHeadline', 'services', 'whyHeadline',
+          'whyDescription', 'whyCtaText', 'whyPoints',
+          'ratingScore', 'ratingLabel', 'testimonials',
+          'performanceConfig', 'completeShowcaseConfig', 'sectionOrder',
+          'enquiryHeadline', 'enquiryDescription', 'enquiryCtaText',
+          'footerDescription', 'contactEmail', 'whatsappNumber',
+          'instagramUrl', 'updatedAt'
+        ])
+        && isAdmin();
+      allow delete: if false;
+    }
+  }
+}
